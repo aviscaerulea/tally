@@ -44,7 +44,7 @@ if ($LASTEXITCODE -eq 0) {
 
 - **OS**: Windows 10/11
 - **コンパイラ**: Visual Studio 2019 以降（C++ ビルドツール）
-- **ビルドツール**: CMake 3.15+, Ninja, [Task](https://taskfile.dev/)
+- **ビルドツール**: [Task](https://taskfile.dev/)
 - **実行環境**: PowerShell 7 (pwsh)
 
 ## ビルド方法
@@ -67,7 +67,7 @@ task clean
 
 ### 成果物
 
-- デバッグ: `out/debug/tally.exe`
+- デバッグ: `out/tally.exe`
 - リリース: `out/tally-1.0.0-x64.zip`
 
 ## 制限事項
@@ -79,8 +79,8 @@ task clean
 
 ## 仕様
 
-詳細な仕様は [.claude/SPEC.md](.claude/SPEC.md) を参照。
+詳細な仕様は [SPEC.md](SPEC.md) を参照。
 
 ## ライセンス
 
-Private project - All rights reserved
+[MIT License](LICENSE.txt)

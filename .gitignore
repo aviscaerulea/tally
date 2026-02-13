@@ -1,0 +1,18 @@
+# Build output
+out/
+build/
+*.exe
+*.obj
+*.pdb
+*.ilk
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Session / IDE / Tool
+**/handover-log.md
+.idea/
+.task/
+.serena/
