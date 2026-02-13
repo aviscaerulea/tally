@@ -1,0 +1,86 @@
+# tally - Web 会議検出ツール
+
+Windows のプライバシー管理レジストリ（CapabilityAccessManager）を監視し、マイクとカメラが同時に使用中かを判定して Web 会議中かどうかを検出する CLI ツール。
+
+## 特徴
+
+- **軽量・高速**: レジストリ読み取りのみで判定、プロセス監視不要
+- **プライバシー情報源**: Windows が公式に管理している使用状況を参照
+- **スクリプト連携**: 終了コードと標準出力で結果を返すため、他ツールから簡単に呼び出せる
+
+## 使用方法
+
+```bash
+# 基本的な使用
+tally
+
+# 詳細情報を表示（使用中のアプリとデバイス）
+tally --verbose
+
+# ヘルプ
+tally --help
+```
+
+### 出力
+
+- **標準出力**: `meeting` または `idle`
+- **終了コード**:
+  - `0`: ミーティング中（マイクとカメラの両方が使用中）
+  - `1`: アイドル状態（両方使用中ではない）
+  - `2`: エラー
+
+### PowerShell からの使用例
+
+```powershell
+tally
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Meeting in progress"
+} else {
+    Write-Host "Idle"
+}
+```
+
+## 環境条件
+
+- **OS**: Windows 10/11
+- **コンパイラ**: Visual Studio 2019 以降（C++ ビルドツール）
+- **ビルドツール**: CMake 3.15+, Ninja, [Task](https://taskfile.dev/)
+- **実行環境**: PowerShell 7 (pwsh)
+
+## ビルド方法
+
+PowerShell (pwsh) で:
+
+```powershell
+# VC++ 開発環境をロード
+Enable-VSDev
+
+# デバッグビルド
+task build
+
+# リリースビルド（zip パッケージ付き）
+task release
+
+# ビルド成果物のクリーニング
+task clean
+```
+
+### 成果物
+
+- デバッグ: `out/debug/tally.exe`
+- リリース: `out/tally-1.0.0-x64.zip`
+
+## 制限事項
+
+- Windows 専用（CapabilityAccessManager は Windows 10/11 の機能）
+- マイクとカメラの**両方**が使用中の場合のみミーティング中と判定
+  - 片方のみ使用（例: マイクのみ）はアイドルと判定
+- プライバシー設定でアプリのデバイスアクセスが無効化されている場合、正しく検出できない可能性がある
+
+## 仕様
+
+詳細な仕様は [.claude/SPEC.md](.claude/SPEC.md) を参照。
+
+## ライセンス
+
+Private project - All rights reserved
