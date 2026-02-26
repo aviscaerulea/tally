@@ -16,12 +16,12 @@ tasks:
     desc: デバッグビルド
     cmds:
       - pwsh -NoProfile -Command "New-Item -ItemType Directory -Force -Path '{{.OUT_DIR}}' | Out-Null"
-      - cl /utf-8 /EHsc /std:c++17 /Zi /Od /Fe:{{.OUT_DIR}}/tally.exe /Fo:{{.OUT_DIR}}/ /Fd:{{.OUT_DIR}}/ tally.cpp advapi32.lib
+      - cl /utf-8 /EHsc /std:c++17 /Zi /Od /Fe:{{.OUT_DIR}}/tally.exe /Fo:{{.OUT_DIR}}/ /Fd:{{.OUT_DIR}}/ tally.cpp advapi32.lib ole32.lib
 
   release:
     desc: リリースビルド & zip パッケージング
     deps: [clean]
     cmds:
       - pwsh -NoProfile -Command "New-Item -ItemType Directory -Force -Path '{{.OUT_DIR}}' | Out-Null"
-      - cl /utf-8 /EHsc /std:c++17 /O2 /DNDEBUG /Fe:{{.OUT_DIR}}/tally.exe /Fo:{{.OUT_DIR}}/ tally.cpp advapi32.lib
+      - cl /utf-8 /EHsc /std:c++17 /O2 /DNDEBUG /Fe:{{.OUT_DIR}}/tally.exe /Fo:{{.OUT_DIR}}/ tally.cpp advapi32.lib ole32.lib
       - pwsh -NoProfile -Command "Compress-Archive -Path '{{.OUT_DIR}}/tally.exe' -DestinationPath '{{.OUT_DIR}}/{{.APP_NAME}}-{{.VERSION}}-{{.ARCH}}.zip'"
