@@ -36,7 +36,7 @@ task clean
 ### 成果物
 
 - デバッグ: `out/tally.exe`
-- リリース: `out/tally-1.0.0-x64.zip`
+- リリース: `out/tally-1.1.0-x64.zip`
 
 ## 動作確認
 
