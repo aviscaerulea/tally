@@ -23,7 +23,7 @@
  *
  *   2. WASAPI（マイクのみ、レジストリで検出できなかった場合の補完）:
  *     キャプチャデバイスのオーディオセッション状態が Active なら使用中
- *     NVIDIA Broadcast 等の仮想デバイス経由のマイク使用を補完検出する
+ *     仮想オーディオデバイス経由のマイク使用を補完検出する
  */
 
 #include <windows.h>
@@ -106,7 +106,7 @@ bool IsDeviceInUse(const std::string& deviceType, bool verbose) {
 }
 
 // WASAPIによるマイクキャプチャセッションの使用状況をチェック（レジストリ検出の補完）
-// NVIDIA Broadcast 等の仮想デバイス経由の使用を検出するために使用する
+// 仮想オーディオデバイス経由の使用を検出するために使用する
 bool IsMicInUseWasapi(bool verbose) {
     HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     // RPC_E_CHANGED_MODE: 別モードで初期化済み。CoUninitialize を呼んではいけない

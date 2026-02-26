@@ -1,5 +1,3 @@
-# CLAUDE.md
-
 @README.md
 @SPEC.md
 
@@ -61,8 +59,8 @@ task clean
 ### テストケース
 
 1. **アイドル状態**: カメラもマイクも使用していない → `idle` (exit 1)
-2. **カメラのみ**: カメラのみ使用中 → `idle` (exit 1)
-3. **マイクのみ**: マイクのみ使用中 → `idle` (exit 1)
+2. **カメラのみ**: カメラのみ使用中 → `meeting` (exit 0)
+3. **マイクのみ**: マイクのみ使用中 → `meeting` (exit 0)
 4. **ミーティング中**: カメラとマイク両方使用中 → `meeting` (exit 0)
 
 ## デバッグ
@@ -81,6 +79,8 @@ reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManage
 
 ## 依存関係
 
-- Windows API (Registry API)
+- Windows API (Registry API, WASAPI)
 - C++ 標準ライブラリ
 - advapi32.lib (レジストリアクセス用)
+- ole32.lib (COM/WASAPI 用)
+
