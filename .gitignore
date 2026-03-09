@@ -16,3 +16,6 @@ build/
 .idea/
 .task/
 .serena/
+**/.env
+**/*.local.*
+.clasp.json

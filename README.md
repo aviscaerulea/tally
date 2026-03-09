@@ -38,6 +38,15 @@ if ($LASTEXITCODE -eq 0) {
 }
 ```
 
+## インストール
+
+[Scoop](https://scoop.sh/) でインストールできる。
+
+```powershell
+scoop bucket add aviscaerulea https://github.com/aviscaerulea/scoop-bucket
+scoop install tally
+```
+
 ## 環境条件
 
 - **OS**: Windows 10/11
