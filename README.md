@@ -1,3 +1,5 @@
+# tally
+
 Windows のプライバシー管理レジストリ（CapabilityAccessManager）を監視し、マイクまたはカメラが使用中かを判定して Web 会議中かどうかを検出する CLI ツール。
 
 ## 特徴
@@ -75,7 +77,7 @@ task clean
 ### 成果物
 
 - デバッグ: `out/tally.exe`
-- リリース: `out/tally-1.1.0-x64.zip`
+- リリース: `out/tally-<VERSION>-x64.zip`
 
 ## 制限事項
 
@@ -87,8 +89,4 @@ task clean
 ## 仕様
 
 詳細な仕様は [SPEC.md](SPEC.md) を参照。
-
-## ライセンス
-
-[MIT License](LICENSE.txt)
 
