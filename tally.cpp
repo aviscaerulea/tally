@@ -33,6 +33,7 @@
 #include <audiopolicy.h>    // IAudioSessionManager2, IAudioSessionEnumerator
 
 // COMオブジェクトの安全な解放
+// 解放後に *pp を nullptr にして二重解放を防ぐ
 template<class T>
 void SafeRelease(T** pp) {
     if (*pp) {
@@ -109,23 +110,24 @@ bool IsDeviceInUse(const std::string& deviceType, bool verbose) {
 // 仮想オーディオデバイス経由の使用を検出するために使用する
 bool IsMicInUseWasapi(bool verbose) {
     HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    // RPC_E_CHANGED_MODE: 別モードで初期化済み。CoUninitialize を呼んではいけない
-    if (hr == RPC_E_CHANGED_MODE) {
-        if (verbose) {
-            std::cerr << "WASAPI: COM already initialized in different mode" << std::endl;
-        }
-        return false;
-    }
-    if (FAILED(hr)) {
+    // SUCCEEDED（S_OK / S_FALSE）の場合のみ CoUninitialize の責務を持つ。
+    // RPC_E_CHANGED_MODE（別モードで初期化済み）は自分で初期化していないため CoUninitialize を呼ばない。
+    // WASAPI は STA / MTA どちらのコンテキストでも動作するため、そのまま続行する。
+    bool comOwned = SUCCEEDED(hr);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
         if (verbose) {
             std::cerr << "WASAPI: COM initialization failed" << std::endl;
         }
         return false;
     }
+    if (verbose && hr == RPC_E_CHANGED_MODE) {
+        std::cerr << "WASAPI: COM already initialized in different mode, proceeding" << std::endl;
+    }
 
     bool found = false;
     IMMDeviceEnumerator* pEnumerator = nullptr;
     IMMDeviceCollection* pCollection = nullptr;
+    UINT deviceCount = 0;
 
     // デバイス列挙子の生成
     hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
@@ -146,8 +148,8 @@ bool IsMicInUseWasapi(bool verbose) {
         goto cleanup;
     }
 
-    UINT deviceCount;
-    pCollection->GetCount(&deviceCount);
+    hr = pCollection->GetCount(&deviceCount);
+    if (FAILED(hr)) goto cleanup;
 
     for (UINT i = 0; i < deviceCount && !found; i++) {
         IMMDevice* pDevice = nullptr;
@@ -173,7 +175,13 @@ bool IsMicInUseWasapi(bool verbose) {
         }
 
         int sessionCount = 0;
-        pSessionEnum->GetCount(&sessionCount);
+        hr = pSessionEnum->GetCount(&sessionCount);
+        if (FAILED(hr)) {
+            SafeRelease(&pSessionEnum);
+            SafeRelease(&pSessionMgr);
+            SafeRelease(&pDevice);
+            continue;
+        }
 
         for (int s = 0; s < sessionCount && !found; s++) {
             IAudioSessionControl* pCtrl = nullptr;
@@ -182,7 +190,9 @@ bool IsMicInUseWasapi(bool verbose) {
 
             // IAudioSessionControl2 を取得してシステムサウンドセッションを除外
             IAudioSessionControl2* pCtrl2 = nullptr;
-            pCtrl->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&pCtrl2);
+            if (FAILED(pCtrl->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&pCtrl2))) {
+                pCtrl2 = nullptr;
+            }
             if (pCtrl2 && pCtrl2->IsSystemSoundsSession() == S_OK) {
                 SafeRelease(&pCtrl2);
                 SafeRelease(&pCtrl);
@@ -213,7 +223,7 @@ bool IsMicInUseWasapi(bool verbose) {
 cleanup:
     SafeRelease(&pCollection);
     SafeRelease(&pEnumerator);
-    CoUninitialize();
+    if (comOwned) CoUninitialize();
     return found;
 }
 
