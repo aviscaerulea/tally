@@ -59,7 +59,8 @@ bool CheckSubKeysForUsage(const std::string& keyPath, const std::string& deviceT
     for (DWORD index = 0; ; index++) {
         subKeyNameSize = sizeof(subKeyName);
         result = RegEnumKeyExA(hKey, index, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr);
-        if (result != ERROR_SUCCESS) break;
+        if (result == ERROR_NO_MORE_ITEMS) break;
+        if (result != ERROR_SUCCESS) continue;
 
         // 直下列挙時は "NonPackaged" をスキップ（別途処理する）
         if (prefix.empty() && strcmp(subKeyName, "NonPackaged") == 0) {
@@ -129,7 +130,6 @@ bool IsMicInUseWasapi(bool verbose) {
     IMMDeviceCollection* pCollection = nullptr;
     UINT deviceCount = 0;
 
-    // デバイス列挙子の生成
     hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
                           __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
     if (FAILED(hr)) {
@@ -139,7 +139,6 @@ bool IsMicInUseWasapi(bool verbose) {
         goto cleanup;
     }
 
-    // アクティブなキャプチャデバイスの列挙
     hr = pEnumerator->EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE, &pCollection);
     if (FAILED(hr)) {
         if (verbose) {
@@ -156,7 +155,6 @@ bool IsMicInUseWasapi(bool verbose) {
         hr = pCollection->Item(i, &pDevice);
         if (FAILED(hr)) continue;
 
-        // セッションマネージャを取得
         IAudioSessionManager2* pSessionMgr = nullptr;
         hr = pDevice->Activate(__uuidof(IAudioSessionManager2), CLSCTX_ALL,
                                nullptr, (void**)&pSessionMgr);
@@ -165,7 +163,6 @@ bool IsMicInUseWasapi(bool verbose) {
             continue;
         }
 
-        // セッション一覧を取得
         IAudioSessionEnumerator* pSessionEnum = nullptr;
         hr = pSessionMgr->GetSessionEnumerator(&pSessionEnum);
         if (FAILED(hr)) {
@@ -199,7 +196,6 @@ bool IsMicInUseWasapi(bool verbose) {
                 continue;
             }
 
-            // セッションがアクティブか確認
             AudioSessionState state;
             hr = pCtrl->GetState(&state);
             if (SUCCEEDED(hr) && state == AudioSessionStateActive) {
@@ -230,12 +226,12 @@ cleanup:
 int main(int argc, char* argv[]) {
     bool verbose = false;
 
-    // コマンドライン引数パース
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
         if (arg == "--verbose") {
             verbose = true;
-        } else if (arg == "--help" || arg == "-h") {
+        }
+        else if (arg == "--help" || arg == "-h") {
             std::cout << "tally - Web meeting detector" << std::endl;
             std::cout << std::endl;
             std::cout << "Usage: tally [--verbose] [--help]" << std::endl;
@@ -252,11 +248,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // マイクとカメラの使用状況をチェック（レジストリ）
     bool micInUse = IsDeviceInUse("microphone", verbose);
     bool camInUse = IsDeviceInUse("webcam", verbose);
 
-    // レジストリで検出できなかった場合、WASAPIで補完チェック
     if (!micInUse) {
         micInUse = IsMicInUseWasapi(verbose);
     }
@@ -266,7 +260,6 @@ int main(int argc, char* argv[]) {
         std::cerr << "Camera in use: " << (camInUse ? "YES" : "NO") << std::endl;
     }
 
-    // いずれかが使用中ならミーティング中と判定
     if (micInUse || camInUse) {
         std::cout << "meeting" << std::endl;
         return 0;
