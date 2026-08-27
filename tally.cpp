@@ -61,6 +61,7 @@ bool CheckSubKeysForUsage(const std::string& keyPath, const std::string& deviceT
         result = RegEnumKeyExA(hKey, index, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr);
         // ERROR_MORE_DATA はバッファに収まらない 1 件だけの問題のため次の index へ進む。
         // それ以外のエラーは index を進めても解消せず、continue すると無限ループになるため打ち切る。
+        // ERROR_NO_MORE_ITEMS（列挙完了）はここに含まれる正常終了経路で、この break がループの唯一の脱出口となる。
         if (result == ERROR_MORE_DATA) continue;
         if (result != ERROR_SUCCESS) break;
 
