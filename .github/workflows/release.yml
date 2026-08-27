@@ -25,12 +25,16 @@ jobs:
       - name: Resolve version
         id: ver
         shell: pwsh
+        env:
+          TAG_NAME: ${{ github.ref_name }}
         run: |
-          $v = "${{ github.ref_name }}" -replace '^v', ''
+          $v = $env:TAG_NAME -replace '^v', ''
           "version=$v" | Out-File -Append -FilePath $env:GITHUB_OUTPUT -Encoding utf8
 
       - name: Build
-        run: task release VERSION=${{ steps.ver.outputs.version }}
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: task release VERSION=$env:VERSION
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
