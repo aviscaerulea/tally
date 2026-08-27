@@ -59,8 +59,8 @@ ConsentStore\microphone\
 1. `microphone` 配下の全サブキー（直下 + `NonPackaged\` 配下）を列挙
 2. 各サブキーの `LastUsedTimeStop` を読み取る
 3. いずれかが `0` の場合、マイクが使用中と判定
-4. マイクがレジストリで未検出の場合、WASAPI でキャプチャセッションを確認
-5. `webcam` でレジストリ検出を実行
+4. `webcam` でレジストリ検出を実行
+5. マイクがレジストリで未検出の場合、WASAPI でキャプチャセッションを確認
 6. **マイク OR カメラのいずれかが使用中** → ミーティング中
 7. 両方未使用 → アイドル状態
 
@@ -135,12 +135,12 @@ WASAPI でマイクキャプチャセッションの使用状況をチェック�
 **処理フロー**:
 1. コマンドライン引数をパース（`--verbose`, `--help`）
 2. `IsDeviceInUse("microphone", verbose)` を呼び出し
-3. マイクが未検出の場合、`IsMicInUseWasapi(verbose)` で補完チェック
-4. `IsDeviceInUse("webcam", verbose)` を呼び出し
+3. `IsDeviceInUse("webcam", verbose)` を呼び出し
+4. マイクが未検出の場合、`IsMicInUseWasapi(verbose)` で補完チェック
 5. いずれかが `true` の場合:
    - stdout に `"meeting"` を出力
    - 終了コード `0` で終了
-5. 両方が `false` の場合:
+6. 両方が `false` の場合:
    - stdout に `"idle"` を出力
    - 終了コード `1` で終了
 
