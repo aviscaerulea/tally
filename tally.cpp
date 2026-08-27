@@ -59,8 +59,10 @@ bool CheckSubKeysForUsage(const std::string& keyPath, const std::string& deviceT
     for (DWORD index = 0; ; index++) {
         subKeyNameSize = sizeof(subKeyName);
         result = RegEnumKeyExA(hKey, index, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr);
-        if (result == ERROR_NO_MORE_ITEMS) break;
-        if (result != ERROR_SUCCESS) continue;
+        // ERROR_MORE_DATA はバッファに収まらない 1 件だけの問題のため次の index へ進む。
+        // それ以外のエラーは index を進めても解消せず、continue すると無限ループになるため打ち切る。
+        if (result == ERROR_MORE_DATA) continue;
+        if (result != ERROR_SUCCESS) break;
 
         // 直下列挙時は "NonPackaged" をスキップ（別途処理する）
         if (prefix.empty() && strcmp(subKeyName, "NonPackaged") == 0) {
