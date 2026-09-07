@@ -1,21 +1,21 @@
-# Build output
-out/
-build/
-*.exe
-*.obj
-*.pdb
-*.ilk
+# デフォルト全除外
+*
 
-# Visual Studio
-.vs/
-*.user
-*.suo
+# 管理対象ファイル
+!/.gitignore
+!/LICENSE
+!/CLAUDE.md
+!/README.md
+!/README.en.md
+!/SPEC.md
+!/Taskfile.yml
+!/tally.cpp
 
-# Session / IDE / Tool
-**/handover-log.md
-.idea/
-.task/
-.serena/
-**/.env
-**/*.local.*
-.clasp.json
+# 管理対象ディレクトリ
+!/.github/
+!/.github/workflows/
+!/.github/workflows/**
+
+# 管理対象内の除外
+*.local.*
+.env
